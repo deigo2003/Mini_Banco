@@ -1,57 +1,73 @@
+import getpass
+
 menu = """
-    [d] Deposito
-    [s] Saque
-    [e] Extrato
-    [q] Sair
+[d] Depósito
+[s] Saque
+[e] Extrato
+[q] Sair
 """
+
+banco = {
+    "DIEGO": "d123",
+    "ANA": "a123",
+    "CARLOS": "c123"
+}
 
 saldo = 0
 limite = 500
 extrato = ""
 numero_saques = 0
-limite_saque = 3
+limite_saques = 3
 
-while True:
-    
-    opicao = input(menu)
+nome = input("Qual o seu nome? ")
+senha = getpass.getpass("Digite sua senha: ")
 
-    if opicao == "d":
-        dep = float(input("quanto voce deseja depositar:"))
+if banco.get(nome.upper()) == senha:
+    print(f"\nBem-vindo, {nome}!\n")
 
-        if dep > 0:
-            saldo += dep
-            extrato += (f"Deposito: R$ {dep:.2f}\n")
+    while True:
+        opcao = input(menu).lower()
+
+        if opcao == "d":
+            deposito = float(input("Quanto você deseja depositar: "))
+
+            if deposito > 0:
+                saldo += deposito
+                extrato += f"Depósito: R$ {deposito:.2f}\n"
+            else:
+                print("Por favor, informe um valor positivo.")
+
+        elif opcao == "s":
+            saque = float(input("Informe o valor do saque: "))
+
+            excedeu_saldo = saque > saldo
+            excedeu_limite = saque > limite
+            excedeu_saques = numero_saques >= limite_saques
+
+            if excedeu_saldo:
+                print("Falha: saldo insuficiente.")
+            elif excedeu_limite:
+                print(f"Falha: o valor máximo por saque é R$ {limite:.2f}.")
+            elif excedeu_saques:
+                print("Falha: número máximo de saques diários atingido.")
+            elif saque > 0:
+                saldo -= saque
+                extrato += f"Saque: R$ {saque:.2f}\n"
+                numero_saques += 1
+            else:
+                print("Operação falhou: valor inválido.")
+
+        elif opcao == "e":
+            print("\n===== EXTRATO =====")
+            print(extrato if extrato else "Nenhuma movimentação.")
+            print(f"Saldo atual: R$ {saldo:.2f}")
+            print("====================\n")
+
+        elif opcao == "q":
+            print("Saindo... Obrigado por usar nosso banco!")
+            break
+
         else:
-            print("porfazor informe um valor positivo")
-    
-    elif opicao == "s":
-        saq = float(input("informe o valor do saque:"))
-
-        exedeu_saldo = saq > saldo
-        exedeu_limite = saq > limite
-        exedeu_saque = numero_saques >= limite_saque
-
-        if exedeu_saldo:
-            print("Falha, o saldo é menor que o saque")
-        elif exedeu_limite:
-            print("Falh, voce exedeu o limite de saque")
-        elif exedeu_saque:
-            print("Falha,voce o numero de saques para o dia")
-        elif saq > 0:
-            saldo -= saq
-            extrato += f"saque R$:{saq:.2f}\n"
-            numero_saques += 1
-        else:
-            print("operação falhou o valor é invalido")
-
-    elif opicao == "e":
-        print("\n=====EXTRATO=====")
-        print("O extrato esta vazio" if not extrato else extrato)
-        print(f"\nO valor da conta é {saldo:.2f}")
-        print("===================")
-    
-    elif opicao == "q":
-        break
-
-    else:
-        print("operacao invalida, verifique se estar tudo certo.")
+            print("Operação inválida. Escolha uma opção válida do menu.")
+else:
+    print("Autenticação falhou: nome ou senha incorretos.")
